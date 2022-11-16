@@ -18,7 +18,7 @@ db = firestore.client()
 data_ref = db.collection('data')
 
 @app.route('/')
-def hello_world():
+def main():
     return 'ROAD AI API'
 
 @app.route('/add', methods=['POST'])
@@ -29,7 +29,6 @@ def create():
         e.g. json={'id': '1', 'title': 'Write a blog post'}
     """
     try:
-        print(request.data)
         data_ref.add(json.loads(request.data))
         return jsonify({"success": True}), 200
     except Exception as e:
@@ -44,31 +43,19 @@ def read():
     """
     try:
         # Check if ID was passed to URL query
-        data_id = request.args.get('id')
-        if data_id:
-            data = data_ref.document(data_id).get()
-            return jsonify(data.to_dict()), 200
-        else:
-            all_datas = [doc.to_dict() for doc in data_ref.stream()]
-            return jsonify(all_datas), 200
+        # data_id = request.args.get('id')
+        # if data_id:
+        #     data = data_ref.document('5rvUryCj4wQOupbA13qd').get()
+        #     return jsonify(data.to_dict()), 200
+        # else:
+        #     all_datas = [doc.to_dict() for doc in data_ref.stream()]
+        #     return jsonify(all_datas), 200
+        data = data_ref.document('7ka0O9ekG6BXJNeCOYmv').get()
+        return jsonify(data.to_dict()), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
 
-@app.route('/update', methods=['POST', 'PUT'])
-def update():
-    """
-        update() : Update document in Firestore collection with request body.
-        Ensure you pass a custom ID as part of json body in post request,
-        e.g. json={'id': '1', 'title': 'Write a blog post today'}
-    """
-    try:
-        id = request.json['id']
-        data_ref.document(id).update(request.json)
-        return jsonify({"success": True}), 200
-    except Exception as e:
-        return f"An Error Occurred: {e}"
-
-@app.route('/delete', methods=['GET', 'DELETE'])
+@app.route('/v1/delete/', methods=['GET', 'DELETE'])
 def delete():
     """
         delete() : Delete a document from Firestore collection.
