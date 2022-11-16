@@ -42,15 +42,7 @@ def read():
         all_datas : Return all documents.
     """
     try:
-        # Check if ID was passed to URL query
-        # data_id = request.args.get('id')
-        # if data_id:
-        #     data = data_ref.document('5rvUryCj4wQOupbA13qd').get()
-        #     return jsonify(data.to_dict()), 200
-        # else:
-        #     all_datas = [doc.to_dict() for doc in data_ref.stream()]
-        #     return jsonify(all_datas), 200
-        data = data_ref.document('7ka0O9ekG6BXJNeCOYmv').get()
+        data = data_ref.document('Gw7Rdj53i6jvJ8yvRjGa').get()
         return jsonify(data.to_dict()), 200
     except Exception as e:
         return f"An Error Occurred: {e}"
