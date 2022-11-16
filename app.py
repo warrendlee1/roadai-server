@@ -55,7 +55,7 @@ def read():
     except Exception as e:
         return f"An Error Occurred: {e}"
 
-@app.route('/v1/delete/', methods=['GET', 'DELETE'])
+@app.route('/delete', methods=['GET', 'DELETE'])
 def delete():
     """
         delete() : Delete a document from Firestore collection.
