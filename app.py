@@ -21,29 +21,38 @@ data_ref = db.collection('data')
 def main():
     return 'ROAD AI API'
 
-@app.route('/add', methods=['POST'])
-def create():
-    """
-        create() : Add document to Firestore collection with request body.
-        Ensure you pass a custom ID as part of json body in post request,
-        e.g. json={'id': '1', 'title': 'Write a blog post'}
-    """
-    try:
-        data_ref.add(json.loads(request.data))
-        return jsonify({"success": True}), 200
-    except Exception as e:
-        return f"An Error Occurred: {e}"
+@app.route('/api/v1/obstructions', methods=['POST'])
+def obstructions():
+    if (request.method == 'POST'):
+        try:
+            data_ref.add(json.loads(request.data))
+            return jsonify({"success": True}), 200
+        except Exception as e:
+            return f"An Error Occurred: {e}"
 
-@app.route('/list', methods=['GET'])
-def read():
-    """
-        read() : Fetches documents from Firestore collection as JSON.
-        data : Return document that matches query ID.
-        all_datas : Return all documents.
-    """
+@app.route('/api/v1/obstructions/near', methods=['GET'])
+def batch():
+    # Query Args
+    batch_size = request.args.get('batch-size', default = 1, type = int)
+    radius = request.args.get('radius', default=5, type=int)
+    longitude = request.args.get('longitude', default = -118.4, type = float)
+    latitude = request.args.get('latitude', default = 33.9, type = float)
+
+    # Calculated Vars
+    max_longitude = longitude + (radius * 0.02) # given 5 miles = 0.1 degrees
+    min_longitude = longitude - (radius * 0.02)
+    max_latitude = latitude + (radius * 0.02)
+    min_latitude = latitude - (radius * 0.02)
+
     try:
-        data = data_ref.document('Gw7Rdj53i6jvJ8yvRjGa').get()
-        return jsonify(data.to_dict()), 200
+        filtered_longitude = data_ref.where('location.longitude', "<=", max_longitude).where('location.longitude', ">=", min_longitude).stream()
+        filtered_latitude = []
+        for doc in filtered_longitude:
+            doc = doc.to_dict()
+            if (doc['location']['latitude'] <= max_latitude and doc['location']['latitude'] >= min_latitude):
+                if len(filtered_latitude) < batch_size:
+                    filtered_latitude.append(doc)
+        return {'success': filtered_latitude}, 200
     except Exception as e:
         return f"An Error Occurred: {e}"
 
