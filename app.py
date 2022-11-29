@@ -33,13 +33,26 @@ def obstructions():
 @app.route('/api/v1/obstructions/near', methods=['GET'])
 def batch():
     # Query Args
+    batch_size = request.args.get('batch-size', default = 1, type = int)
+    radius = request.args.get('radius', default=5, type=int)
     longitude = request.args.get('longitude', default = 0.0, type = float)
     latitude = request.args.get('latitude', default = 0.0, type = float)
-    batch_size = request.args.get('batch-size', default = 1, type = int)
+
+    # Calculated Vars
+    max_longitude = longitude + (radius * 0.02) # given 5 miles = 0.1 degrees
+    min_longitude = longitude - (radius * 0.02)
+    max_latitude = latitude + (radius * 0.02)
+    min_latitude = latitude - (radius * 0.02)
+    
     try:
-        data = data_ref.where('location.longitude', "==", longitude).where('location.latitude', "==", latitude).limit(batch_size).get()
-        print(data[0].to_dict())
-        return jsonify({"success": True}), 200
+        filtered_longitude = data_ref.where('location.longitude', "<=", max_longitude).where('location.longitude', ">=", min_longitude).stream()
+        filtered_latitude = []
+        for doc in filtered_longitude:
+            doc = doc.to_dict()
+            if (doc['location']['latitude'] <= max_latitude and doc['location']['latitude'] >= min_latitude):
+                if len(filtered_latitude) < batch_size:
+                    filtered_latitude.append(doc)
+        return {'success': filtered_latitude}, 200
     except Exception as e:
         return f"An Error Occurred: {e}"
 
