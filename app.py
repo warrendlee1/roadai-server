@@ -35,15 +35,15 @@ def batch():
     # Query Args
     batch_size = request.args.get('batch-size', default = 1, type = int)
     radius = request.args.get('radius', default=5, type=int)
-    longitude = request.args.get('longitude', default = 0.0, type = float)
-    latitude = request.args.get('latitude', default = 0.0, type = float)
+    longitude = request.args.get('longitude', default = -118.4, type = float)
+    latitude = request.args.get('latitude', default = 33.9, type = float)
 
     # Calculated Vars
     max_longitude = longitude + (radius * 0.02) # given 5 miles = 0.1 degrees
     min_longitude = longitude - (radius * 0.02)
     max_latitude = latitude + (radius * 0.02)
     min_latitude = latitude - (radius * 0.02)
-    
+
     try:
         filtered_longitude = data_ref.where('location.longitude', "<=", max_longitude).where('location.longitude', ">=", min_longitude).stream()
         filtered_latitude = []
