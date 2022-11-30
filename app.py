@@ -30,7 +30,7 @@ def obstructions():
             data_ref.add(json.loads(request.data))
             return jsonify({"success": True}), 200
         except Exception as e:
-            return f"An Error Occurred: {e}"
+            return jsonify({"error": str(e)})
 
 
 @app.route("/api/v1/obstructions/near", methods=["GET"])
@@ -66,7 +66,7 @@ def get_nearby():
 
         return jsonify(nearby), 200
     except Exception as e:
-        return f"An Error Occurred: {e}"
+        return jsonify({"error": str(e)})
 
 
 @app.route("/api/v1/obstructions/batch", methods=["GET"])
@@ -83,7 +83,7 @@ def get_batch():
             obstructions.pop(rand_idx)
         return jsonify(batch), 200
     except Exception as e:
-        return f"An Error Occurred: {e}"
+        return jsonify({"error": str(e)})
 
 
 @app.route("/delete", methods=["GET", "DELETE"])
@@ -97,7 +97,7 @@ def delete():
         data_ref.document(data_id).delete()
         return jsonify({"success": True}), 200
     except Exception as e:
-        return f"An Error Occurred: {e}"
+        return jsonify({"error": str(e)})
 
 
 port = int(os.environ.get("PORT", 8080))
